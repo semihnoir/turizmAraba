@@ -103,21 +103,24 @@ void loop() {
       ;  // Buton bırakılana kadar bekle
   }
 
-  if (isMoving) {
-    if (renkSayaci == 0) {
-      stopMotors();
-    }
-    readColorValues();
-    String color = detectColor(K, Y, M);
-    Serial.println("Algılanan Renk: " + color);
+  if (renkSayaci != 0) {
+    if (isMoving) {
+      readColorValues();
+      String color = detectColor(K, Y, M);
+      Serial.println("Algılanan Renk: " + color);
 
-    if (color == "Beyaz") {  // Beyaz ise harekete devam et
-      moveForward();
-    } else if (color != "Bilinmiyor") {
-      stopMotors();
-      playSound(color);  // Renk adını parametre olarak gönder
-      moveForward();
+      if (color == "Beyaz") {  // Beyaz ise harekete devam et
+        moveForward();
+      } else if (color != "Bilinmiyor") {
+        stopMotors();
+        playSound(color);  // Renk adını parametre olarak gönder
+        moveForward();
+      }
     }
+  }
+  else{
+    stopMotors();
+    isMoving = !isMoving;
   }
 }
 
