@@ -50,7 +50,7 @@ void setup() {
       ;
   }
   Serial.println("DFPlayer Mini hazır.");
-  myDFPlayer.volume(25);  // Ses seviyesi 0-30
+  myDFPlayer.volume(21);  // Ses seviyesi 0-30
 
   motorLeft.setSpeed(50);
   motorRight.setSpeed(50);
