@@ -50,7 +50,7 @@ void setup() {
       ;
   }
   Serial.println("DFPlayer Mini hazır.");
-  myDFPlayer.volume(21);  // Ses seviyesi 0-30
+  myDFPlayer.volume(15);  // Ses seviyesi 0-30
 
   motorLeft.setSpeed(50);
   motorRight.setSpeed(50);
@@ -109,7 +109,7 @@ void loop() {
       String color = detectColor(K, Y, M);
       Serial.println("Algılanan Renk: " + color);
 
-      if (color == "Beyaz") {  // Beyaz ise harekete devam et
+      if (color == "Siyah") {  // Siyah ise harekete devam et
         moveForward();
       } else if (color != "Bilinmiyor") {
         stopMotors();
@@ -154,13 +154,17 @@ String detectColor(int K, int Y, int M) {
     return "Beyaz";
   } else if (K > blackCalibration[0] && Y > blackCalibration[1] && M > blackCalibration[2]) {
     return "Siyah";
-  } else if (K < Y && K < M) {
+  } 
+  /*
+  else if (K < Y && K < M) {
     return "Kırmızı";
   } else if (Y < K && Y < M) {
     return "Yeşil";
   } else if (M < K && M < Y) {
     return "Mavi";
-  } else {
+  }
+  */
+   else {
     return "Bilinmiyor";
   }
 }
@@ -170,7 +174,8 @@ void playSound(String color) {
     Serial.println("Ses çalınıyor.");
 
     // Renk sırasını bul
-    int renkIndex = -1;
+    //int renkIndex = -1;
+    /*
     for (int i = 0; i < 7; i++) {  // 7 renk için döngü
       if (renkler[i] == color) {
         renkIndex = i;
@@ -178,9 +183,10 @@ void playSound(String color) {
         break;
       }
     }
+    */
 
-    if (renkIndex != -1) {              // Renk listede bulunduysa
-      int trackNumber = renkIndex + 1;  // Şarkı numarası (1-7 arası)
+    //if (renkIndex != -1) {              // Renk listede bulunduysa
+      //int trackNumber = renkIndex + 1;  // Şarkı numarası (1-7 arası)
       Serial.println("index: " + String(renkSayaci));
       myDFPlayer.playMp3Folder(renkSayaci);
 
@@ -192,7 +198,7 @@ void playSound(String color) {
       if (renkSayaci > 7) {  // 7 renk için
         renkSayaci = 0;      // bitir
       }
-    }
+    //}
   }
 }
 
