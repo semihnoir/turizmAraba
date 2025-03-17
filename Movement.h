@@ -24,7 +24,7 @@ void turnRight() {
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
   analogWrite(ENA, dSpeed);
-  analogWrite(ENB, fSpeed);
+  analogWrite(ENB, aSpeed);
 }
 
 void turnLeft() {
@@ -32,7 +32,7 @@ void turnLeft() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  analogWrite(ENA, fSpeed);
+  analogWrite(ENA, aSpeed);
   analogWrite(ENB, dSpeed);
 }
 
@@ -42,7 +42,7 @@ void slightRight() {
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
   analogWrite(ENA, fSpeed / 2);
-  analogWrite(ENB, fSpeed);
+  analogWrite(ENB, fSpeed - 10);
 }
 
 void slightLeft() {
@@ -50,7 +50,7 @@ void slightLeft() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  analogWrite(ENA, fSpeed);
+  analogWrite(ENA, fSpeed - 10);
   analogWrite(ENB, fSpeed / 2);
 }
 
@@ -61,4 +61,19 @@ void stopMotors() {
   digitalWrite(IN4, LOW);
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
+}
+
+// Kademeli yavaşlama fonksiyonu
+void gradualSlowdown() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  
+  // Mevcut hızdan (fSpeed) sıfıra kadar kademeli azalt
+  for (int currentSpeed = fSpeed; currentSpeed >= 0; currentSpeed -= 5) {
+    analogWrite(ENA, currentSpeed);
+    analogWrite(ENB, currentSpeed);
+    delay(50); // Her kademe için 50ms bekle
+  }
 }

@@ -1,5 +1,8 @@
 #include "Movement.h"
 
+const int siyah = 0;
+const int beyaz = 1;
+
 // Çizgi takip fonksiyonu
 void lineFollow() {
   int sensorValueLeft = digitalRead(sensorPinLeft);
@@ -10,35 +13,46 @@ void lineFollow() {
   Serial.print("  Orta: "); Serial.print(sensorValueMiddle);
   Serial.print("  Sağ: "); Serial.println(sensorValueRight);
 
-  // 1. Orta sensör aktifken ileri git
-  if ((sensorValueMiddle == 0 && sensorValueLeft == 1 && sensorValueRight == 1) 
-  || (sensorValueMiddle == 0 && sensorValueLeft == 0 && sensorValueRight == 0)) {
-    Serial.println("Düz Git");
-    moveForward();
-  } 
-  // 2. Sol sensör aktifken sağa dön
-  else if (sensorValueLeft == 0 && sensorValueMiddle == 1 && sensorValueRight == 1) {
-    Serial.println("Sağa Dön");
-    turnRight();
-  } 
-  // 3. Sağ sensör aktifken sola dön
-  else if (sensorValueRight == 0 && sensorValueMiddle == 1 && sensorValueLeft == 1) {
-    Serial.println("Sola Dön");
-    turnLeft();
-  } 
-  // 4. Sol ve orta sensör aynı anda çizgiyi algılarsa hafif sağa yönel
-  else if (sensorValueLeft == 0 && sensorValueMiddle == 0 && sensorValueRight == 1) {
-    Serial.println("Hafif Sağa Yönel");
-    slightRight();
-  } 
-  // 5. Sağ ve orta sensör aynı anda çizgiyi algılarsa hafif sola yönel
-  else if (sensorValueRight == 0 && sensorValueMiddle == 0 && sensorValueLeft == 1) {
-    Serial.println("Hafif Sola Yönel");
-    slightLeft();
-  } 
-  // 6. Üç sensör de çizgiyi algılarsa dur
-  else {
-    Serial.println("Geri");
-    moveBackward();
+  // Tüm sensörler beyaz görüyorsa (1,1,1) son yöne göre hareket et
+  if (sensorValueLeft == siyah && sensorValueMiddle == siyah && sensorValueRight == siyah) {
+    if (lastDirection == 1) {
+      // Son hareket sola doğruysa, sola dönmeye devam et
+      turnRight();
+    } else if (lastDirection == 2) {
+      // Son hareket sağa doğruysa, sağa dönmeye devam et
+      turnLeft();
+    } else {
+      // Son hareket düz ise, düz gitmeye devam et
+      moveForward();
+    }
+    return;
   }
+
+  // Normal çizgi takip mantığı
+  if ((sensorValueMiddle == beyaz && sensorValueLeft == siyah && sensorValueRight == siyah) 
+      || (sensorValueMiddle == beyaz && sensorValueLeft == beyaz && sensorValueRight == beyaz)) {
+    moveForward();
+    lastDirection = 0;
+  } 
+  else if (sensorValueLeft == beyaz && sensorValueMiddle == siyah && sensorValueRight == siyah) {
+    turnRight();
+    lastDirection = 1;
+  } 
+  else if (sensorValueRight == beyaz && sensorValueMiddle == siyah && sensorValueLeft == siyah) {
+    turnLeft();
+    lastDirection = 2;
+  } 
+  else if (sensorValueLeft == beyaz && sensorValueMiddle == beyaz && sensorValueRight == siyah) {
+    slightRight();
+    lastDirection = 1;
+  } 
+  else if (sensorValueRight == beyaz && sensorValueMiddle == beyaz && sensorValueLeft == siyah) {
+    slightLeft();
+    lastDirection = 2;
+  }
+
+  // Son sensör durumlarını kaydet
+  lastSensorLeft = sensorValueLeft;
+  lastSensorMiddle = sensorValueMiddle;
+  lastSensorRight = sensorValueRight;
 }
