@@ -347,7 +347,34 @@ void handleClient(WiFiClient client) {
       char c = client.read();
       header += c;
       if (c == '\n') {
-        if (currentLine.length() == 0) {
+        // Yeni: GET isteği kontrolü
+        if (header.indexOf("GET /data") >= 0) {
+          // JSON verisi oluştur
+          String jsonData = "{";
+          jsonData += "\"bolgeAdi\":\"";
+          if (mevcutBolgeIndex >= 0 && mevcutBolgeIndex < 7) {
+            jsonData += bolgeIsimleri[mevcutBolgeIndex];
+          } else {
+            jsonData += "Bilinmiyor";
+          }
+          jsonData += "\",";
+          jsonData += "\"sesNumarasi\":";
+          if (mevcutBolgeIndex >= 0 && mevcutBolgeIndex < 7) {
+            jsonData += bolgeSesleri[mevcutBolgeIndex];
+          } else {
+            jsonData += "null";
+          }
+          jsonData += "}";
+
+          // Yanıt başlığı
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: application/json");
+          client.println("Connection: close");
+          client.println();
+          // JSON verisini gönder
+          client.println(jsonData);
+          break; // İsteği tamamla
+        } else {
           client.println("HTTP/1.1 200 OK");
           client.println("Content-type:text/html");
           client.println("Connection: close");
@@ -408,8 +435,6 @@ void handleClient(WiFiClient client) {
           client.println("</body></html>");
           
           break;
-        } else {
-          currentLine = "";
         }
       } else if (c != '\r') {
         currentLine += c;
