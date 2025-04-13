@@ -9,7 +9,18 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [ipAdresi, setIpAdresi] = useState<string>(""); 
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
-
+  const [haritaGoruntusu, setHaritaGoruntusu] = useState<string>("/bolgeler/bos.jpg");
+  
+  const bolgeler = [
+    { ad: "İç Anadolu", dosyaAdi: "icanadolu" },
+    { ad: "Karadeniz", dosyaAdi: "karadeniz" },
+    { ad: "Doğu Anadolu", dosyaAdi: "doguanadolu" },
+    { ad: "Güneydoğu Anadolu", dosyaAdi: "guneydoguanadolu" },
+    { ad: "Akdeniz", dosyaAdi: "akdeniz" },
+    { ad: "Ege", dosyaAdi: "ege" },
+    { ad: "Marmara", dosyaAdi: "marmara" }
+  ];
+  
   const mp3Url = sesNumarasi !== null 
     ? `/mp3/${sesNumarasi < 10 
         ? `000${sesNumarasi}` 
@@ -49,8 +60,22 @@ export default function Home() {
       audioElement.play().catch(error => {
         console.error("Ses oynatma hatası:", error);
       });
+
+      // Ses bittiğinde boş haritayı göster
+      audioElement.onended = () => {
+        setHaritaGoruntusu("/bolgeler/bos.jpg");
+      };
     }
   }, [mp3Url, audioElement]);
+
+  useEffect(() => {
+    if (bolgeAdi) {
+      const bolge = bolgeler.find(b => b.ad === bolgeAdi);
+      if (bolge) {
+        setHaritaGoruntusu(`/bolgeler/${bolge.dosyaAdi}.jpg`);
+      }
+    }
+  }, [bolgeAdi]);
 
   const handleIpAdresiChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIpAdresi(event.target.value);
@@ -69,23 +94,6 @@ export default function Home() {
             Türkiye Turizm Rehberi
           </h1>
 
-          {/* IP Giriş Alanı */}
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-            <div className="flex gap-4 items-center">
-              <label htmlFor="ipAdresi" className="font-medium text-gray-700">
-                Arduino IP Adresi:
-              </label>
-              <input
-                type="text"
-                id="ipAdresi"
-                placeholder="Örn: 192.168.1.100"
-                value={ipAdresi}
-                onChange={handleIpAdresiChange}
-                className="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              />
-            </div>
-          </div>
-
           {/* Hata Mesajı */}
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-8">
@@ -95,58 +103,81 @@ export default function Home() {
 
           {/* Ana İçerik */}
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Sol Taraf - Bölge Bilgisi ve Ses */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                Mevcut Konum Bilgisi
-              </h2>
-              <div className="mb-6">
-                <p className="text-lg font-medium text-blue-600">
-                  Bulunduğunuz Bölge: {bolgeAdi || "Bilinmiyor"}
-                </p>
-              </div>
-              {mp3Url && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium mb-2 text-gray-700">
-                    Bölge Tanıtım Sesi
-                  </h3>
-                  <audio
-                    controls
-                    className="w-full"
-                    ref={setAudioElement}
-                    autoPlay
-                  >
-                    <source src={mp3Url} type="audio/mpeg" />
-                    Tarayıcınız ses etiketini desteklemiyor.
-                  </audio>
+            {/* Sol Taraf - Harita ve IP Girişi */}
+            <div className="space-y-8">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="aspect-w-16 aspect-h-9">
+                  <Image
+                    src={haritaGoruntusu}
+                    alt="Türkiye Haritası"
+                    width={1920}
+                    height={1080}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
-              )}
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex gap-4 items-center">
+                  <label htmlFor="ipAdresi" className="font-medium text-gray-700">
+                    Arduino IP Adresi:
+                  </label>
+                  <input
+                    type="text"
+                    id="ipAdresi"
+                    placeholder="Örn: 192.168.4.1"
+                    value={ipAdresi}
+                    onChange={handleIpAdresiChange}
+                    className="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Sağ Taraf - Türkiye Bölgeleri */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                Türkiye Bölgeleri
-              </h2>
-              <div className="space-y-2">
-                {[
-                  "Marmara",
-                  "Ege",
-                  "Akdeniz",
-                  "İç Anadolu",
-                  "Karadeniz",
-                  "Doğu Anadolu",
-                  "Güneydoğu Anadolu"
-                ].map((bolge) => (
-                  <div
-                    key={bolge}
-                    className={`p-3 rounded-md transition-colors duration-300 ${getBolgeRengi(bolge)} ${
-                      bolge === bolgeAdi ? 'text-white' : 'text-gray-700'
-                    }`}
-                  >
-                    {bolge}
+            {/* Sağ Taraf - Bölge Bilgisi ve Bölgeler */}
+            <div className="space-y-8">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                  Mevcut Konum Bilgisi
+                </h2>
+                <div className="mb-6">
+                  <p className="text-lg font-medium text-blue-600">
+                    Bulunduğunuz Bölge: {bolgeAdi || "Bilinmiyor"}
+                  </p>
+                </div>
+                {mp3Url && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-medium mb-2 text-gray-700">
+                      Bölge Tanıtım Sesi
+                    </h3>
+                    <audio
+                      controls
+                      className="w-full"
+                      ref={setAudioElement}
+                      autoPlay
+                    >
+                      <source src={mp3Url} type="audio/mpeg" />
+                      Tarayıcınız ses etiketini desteklemiyor.
+                    </audio>
                   </div>
-                ))}
+                )}
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                  Türkiye Bölgeleri
+                </h2>
+                <div className="space-y-2">
+                  {bolgeler.map((bolge) => (
+                    <div
+                      key={bolge.ad}
+                      className={`p-3 rounded-md transition-colors duration-300 ${getBolgeRengi(bolge.ad)} ${
+                        bolge.ad === bolgeAdi ? 'text-white' : 'text-gray-700'
+                      }`}
+                    >
+                      {bolge.ad}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

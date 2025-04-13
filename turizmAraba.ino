@@ -8,8 +8,8 @@
 #include "RFID.h"
 
 // WiFi ağ bilgileri
-const char* ssid = "LAB5"; // WiFi adını buraya girin
-const char* password = ""; // WiFi şifresini buraya girin
+const char* ssid = "TurizmAraba"; // Access Point adı
+const char* password = "12345678"; // Access Point şifresi
 
 // Web Server için gerekli değişkenler
 WiFiServer server(80);
@@ -305,33 +305,16 @@ void beepLong() {
 
 // WiFi bağlantısı kurma fonksiyonu
 void connectToWiFi() {
-  Serial.print("WiFi ağına bağlanılıyor: ");
+  Serial.print("Access Point oluşturuluyor: ");
   Serial.println(ssid);
 
-  WiFi.begin(ssid);
+  // Access Point modunu başlat
+  WiFi.beginAP(ssid);
   
-  int attempts = 0;
-  wifiConnected = false; // Başlangıçta bağlantı yok
-
-  // En fazla 10 saniye (20 deneme) bekleyelim
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
-  
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println();
-    Serial.println("WiFi bağlantısı kuruldu");
-    Serial.print("IP adresi: ");
-    Serial.println(WiFi.localIP());
-    wifiConnected = true; // Bağlantı başarılı
-  } else {
-    Serial.println();
-    Serial.println("WiFi bağlantısı başarısız oldu. Normal işlevlerle devam ediliyor.");
-    WiFi.disconnect(); // Bağlantı denemesini sonlandır
-    wifiConnected = false; // Bağlantı yok
-  }
+  Serial.println("Access Point başlatıldı");
+  Serial.print("IP adresi: ");
+  Serial.println(WiFi.softAPIP());
+  wifiConnected = true; // Bağlantı başarılı
 }
 
 // Web istemcilerini yönetme fonksiyonu

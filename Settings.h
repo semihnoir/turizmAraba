@@ -16,8 +16,8 @@ const int sensorPinMiddle = A3; // Orta sensör
 #define SS_PIN 10
 #define RST_PIN 9
 
-int fSpeed = 100;  // İleri hız
-int aSpeed = 95;
+int fSpeed = 57;  // İleri hız
+int aSpeed = 65;
 int dSpeed = 0;  // Dönüş hızı
 // 7.4 V için 100-120 
 // 11.1 V için 57-65
