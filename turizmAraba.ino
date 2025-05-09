@@ -208,8 +208,26 @@ void loop() {
     bool eslesme = false;
     int bolgeIndex = -1;
 
-    for (int i = 0; i < 7; i++) {
-      if (memcmp(rfid.uid.uidByte, bolgeler[i].ID, 4) == 0) {
+    for (int i = 0; i < 14; i++) {
+      bool ayni = true;
+      if (bolgeler[i].uidLen == 4 && rfid.uid.size >= 4) {
+        for (int j = 0; j < 4; j++) {
+          if (rfid.uid.uidByte[j] != bolgeler[i].ID[j]) {
+            ayni = false;
+            break;
+          }
+        }
+      } else if (bolgeler[i].uidLen == 7 && rfid.uid.size == 7) {
+        for (int j = 0; j < 7; j++) {
+          if (rfid.uid.uidByte[j] != bolgeler[i].ID[j]) {
+            ayni = false;
+            break;
+          }
+        }
+      } else {
+        ayni = false;
+      }
+      if (ayni) {
         Serial.print("Kart ");
         Serial.print(bolgeler[i].isim);
         Serial.println(" ile eşleşti!");
@@ -231,22 +249,28 @@ void loop() {
 }
 
 void playSound(int bolgeIndex) {
+  // Eğer yuvarlak kart (7-13 arası indeks) kullanıldıysa, indeksi 0-6 aralığına çevir
+  int sesDosyasiIndex = bolgeIndex;
+  if (bolgeIndex >= 7) {
+    sesDosyasiIndex = bolgeIndex - 7;  // 7'den büyük indeksleri 0-6 aralığına getir
+  }
+
   if (renkSayaci != 0) {
     stopMotors();  // Motoru durdur
 
     Serial.println("Ses çalınıyor.");
     Serial.print("Çalınacak ses dosyası numarası: ");
-    Serial.println(bolgeSesleri[bolgeIndex]);  // Debug için ekledik
+    Serial.println(bolgeSesleri[sesDosyasiIndex]);  // Debug için ekledik
 
     // Ses dosyasını çal
-    myDFPlayer.playMp3Folder(bolgeSesleri[bolgeIndex]);
+    myDFPlayer.playMp3Folder(bolgeSesleri[sesDosyasiIndex]);
     
     // Web sitesi için mevcut bölge bilgisini güncelle
-    mevcutBolgeIndex = bolgeIndex;
+    mevcutBolgeIndex = sesDosyasiIndex;
     sesCaliyor = true;
 
     // Bekleme süresi (ilgili sesin süresi)
-    int beklemeSuresi = sesSureleri[bolgeIndex];
+    int beklemeSuresi = sesSureleri[sesDosyasiIndex];
     unsigned long startTime = millis();  // Süre başlangıcını kaydet
 
     while (millis() - startTime < beklemeSuresi) {
@@ -285,7 +309,7 @@ void playSound(int bolgeIndex) {
     }
 
     Serial.print("Bölge indeksi: ");
-    Serial.println(bolgeIndex);
+    Serial.println(sesDosyasiIndex);
     Serial.print("Mevcut renkSayaci: ");
     Serial.println(renkSayaci);
   }
